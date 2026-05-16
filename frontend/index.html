@@ -22,7 +22,10 @@
                 <p>3. Após usar uma carta, ela troca de lugar com a Carta Neutra lateral.</p>
             </div>
 
-            <button id="create-btn" class="primary-btn">Criar Nova Partida</button>
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button id="create-btn" class="primary-btn" style="flex: 1;">Criar Partida com Amigo</button>
+                <button id="create-ai-btn" class="primary-btn" style="flex: 1; background: linear-gradient(135deg, #10b981, #059669);">Jogar vs Computador 🤖</button>
+            </div>
             
             <div id="join-section">
                 <div class="input-group">
@@ -39,7 +42,10 @@
                 <p class="success-text">Partida Criada com Sucesso!</p>
                 <div class="links-box">
                     <p>Mande este link para o Jogador 2:</p>
-                    <input type="text" id="link-p2" readonly value="Aguardando...">
+                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                        <input type="text" id="link-p2" readonly value="Aguardando..." style="flex: 1;">
+                        <button id="copy-btn" class="secondary-btn" style="padding: 0 12px;" onclick="copyLink()">Copiar</button>
+                    </div>
                     <a href="#" id="link-p1" class="join-link">Entrar como Jogador 1 Agora!</a>
                 </div>
             </div>
@@ -65,6 +71,7 @@
             <h2 id="turn-indicator">Conectando...</h2>
             <p id="room-display"></p>
             <p id="player-display"></p>
+            <div id="spectator-actions" class="hidden" style="margin-top: 12px; display: flex; gap: 8px;"></div>
         </div>
 
         <div class="game-container">

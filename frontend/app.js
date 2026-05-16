@@ -16,12 +16,14 @@ let validMovesCache = []; // [{row, col}]
 const setupScreen = document.getElementById('setup-screen');
 const gameScreen = document.getElementById('game-screen');
 const createBtn = document.getElementById('create-btn');
+const createAIBtn = document.getElementById('create-ai-btn');
 const joinBtn = document.getElementById('join-btn');
 const roomInput = document.getElementById('room-input');
 const playerSelect = document.getElementById('player-select');
 const roomInfo = document.getElementById('room-info');
 const linkP1 = document.getElementById('link-p1');
 const linkP2 = document.getElementById('link-p2');
+const copyBtn = document.getElementById('copy-btn');
 
 const boardEl = document.getElementById('board');
 const p1CardsEl = document.getElementById('player-cards');
@@ -125,6 +127,15 @@ async function fetchActiveGames() {
 }
 
 // --- EVENTOS DE SETUP ---
+function copyLink() {
+    linkP2.select();
+    navigator.clipboard.writeText(linkP2.value).then(() => {
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = 'Copiado!';
+        setTimeout(() => copyBtn.textContent = originalText, 2000);
+    }).catch(err => alert("Erro ao copiar: " + err));
+}
+
 createBtn.addEventListener('click', async () => {
     try {
         const res = await fetch(`${API_BASE}/api/new`, { method: 'POST' });
@@ -143,6 +154,17 @@ createBtn.addEventListener('click', async () => {
         
     } catch (e) {
         alert("Erro ao criar partida: " + e);
+    }
+});
+
+createAIBtn.addEventListener('click', async () => {
+    try {
+        const res = await fetch(`${API_BASE}/api/new-ai`, { method: 'POST' });
+        const data = await res.json();
+        
+        window.location.href = data.join_url_p1;
+    } catch (e) {
+        alert("Erro ao criar partida contra IA: " + e);
     }
 });
 
@@ -188,6 +210,12 @@ function connectWebSocket() {
         if (data.type === "state") {
             gameState = data.state;
             
+            // Render buttons for missing players if I am a spectator
+            if (playerId.startsWith('spectator')) {
+                const connected = data.connected_players || [];
+                renderSpectatorJoinButtons(connected);
+            }
+            
             if (gameState.last_action && gameState.last_action.id > lastActionId) {
                 if (!isInitialLoad) {
                     playSound(gameState.last_action);
@@ -207,6 +235,42 @@ function connectWebSocket() {
 }
 
 // --- RENDERIZAÇÃO ---
+function renderSpectatorJoinButtons(connectedPlayers) {
+    const actionsDiv = document.getElementById('spectator-actions');
+    actionsDiv.innerHTML = '';
+    
+    let hasMissing = false;
+    
+    if (!connectedPlayers.includes('p1')) {
+        hasMissing = true;
+        const btn = document.createElement('button');
+        btn.className = 'primary-btn';
+        btn.style.padding = '6px 12px';
+        btn.style.fontSize = '0.85rem';
+        btn.textContent = 'Assumir P1 (Azul)';
+        btn.onclick = () => window.location.href = `/?room=${roomId}&player=p1`;
+        actionsDiv.appendChild(btn);
+    }
+    
+    if (!connectedPlayers.includes('p2') && !gameState.is_ai) {
+        hasMissing = true;
+        const btn = document.createElement('button');
+        btn.className = 'primary-btn';
+        btn.style.background = 'linear-gradient(135deg, #ef4444, #b91c1c)';
+        btn.style.padding = '6px 12px';
+        btn.style.fontSize = '0.85rem';
+        btn.textContent = 'Assumir P2 (Vermelho)';
+        btn.onclick = () => window.location.href = `/?room=${roomId}&player=p2`;
+        actionsDiv.appendChild(btn);
+    }
+    
+    if (hasMissing) {
+        actionsDiv.classList.remove('hidden');
+    } else {
+        actionsDiv.classList.add('hidden');
+    }
+}
+
 function render() {
     renderBoard();
     renderCards();

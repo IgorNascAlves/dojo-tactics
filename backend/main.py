@@ -16,9 +16,16 @@ connections = {}
 @app.post("/api/new")
 def create_game():
     room_id = str(uuid.uuid4())[:8]
-    games[room_id] = GameState()
+    games[room_id] = GameState(is_ai=False)
     connections[room_id] = {}
     return {"room_id": room_id, "join_url_p1": f"/?room={room_id}&player=p1", "join_url_p2": f"/?room={room_id}&player=p2"}
+
+@app.post("/api/new-ai")
+def create_game_ai():
+    room_id = str(uuid.uuid4())[:8]
+    games[room_id] = GameState(is_ai=True)
+    connections[room_id] = {}
+    return {"room_id": room_id, "join_url_p1": f"/?room={room_id}&player=p1"}
 
 @app.get("/api/games")
 def list_games():
@@ -81,6 +88,16 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str, player_id: str)
                         )
                         if success:
                             await broadcast_state(room_id)
+                            
+                            # Logica do turno da IA
+                            if getattr(game, 'is_ai', False) and game.turn == "p2" and not game.winner:
+                                import asyncio
+                                await asyncio.sleep(1.0) # Delay para o jogador humano ver a sua própria jogada antes de tomar porrada
+                                ai_move = game.get_ai_move()
+                                if ai_move:
+                                    fr, fc, tr, tc, ai_card = ai_move
+                                    game.move("p2", fr, fc, tr, tc, ai_card)
+                                    await broadcast_state(room_id)
                         else:
                             await websocket.send_json({"error": "Invalid move"})
                             
@@ -99,11 +116,14 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str, player_id: str)
 async def broadcast_state(room_id: str):
     if room_id in games and room_id in connections:
         state = games[room_id].to_dict()
+        connected_players = list(connections[room_id].keys())
+        
         for player_id, ws in connections[room_id].items():
             try:
                 await ws.send_json({
                     "type": "state",
                     "player": player_id,
+                    "connected_players": connected_players,
                     "state": state
                 })
             except Exception as e:

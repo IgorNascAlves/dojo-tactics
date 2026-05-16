@@ -24,7 +24,8 @@ CARDS = {
 }
 
 class GameState:
-    def __init__(self):
+    def __init__(self, is_ai=False):
+        self.is_ai = is_ai
         # 5x5 board
         # p1: player 1 (bottom), p2: player 2 (top)
         # s: student, m: master
@@ -147,5 +148,58 @@ class GameState:
             "neutral_card": self.neutral_card,
             "turn": self.turn,
             "winner": self.winner,
-            "last_action": self.last_action
+            "last_action": self.last_action,
+            "is_ai": self.is_ai
         }
+
+    def get_ai_move(self) -> Optional[Tuple[int, int, int, int, str]]:
+        if self.winner or self.turn != "p2":
+            return None
+            
+        valid_moves = []
+        for r in range(5):
+            for c in range(5):
+                piece = self.board[r][c]
+                if piece.endswith("2"):
+                    moves = self.get_valid_moves("p2", r, c)
+                    for m in moves:
+                        valid_moves.append((r, c, m[0], m[1], m[2]))
+        
+        if not valid_moves:
+            return None
+            
+        # --- Lógica Minimax Básica (Heurística Nível Médio) ---
+        
+        # 1. Verifica movimentos que dão a vitória imediata
+        for m in valid_moves:
+            fr, fc, tr, tc, card = m
+            target_piece = self.board[tr][tc]
+            moving_piece = self.board[fr][fc]
+            # Capturar o mestre inimigo
+            if target_piece == "m1":
+                return m
+            # Levar o próprio mestre ao templo inimigo
+            if moving_piece == "m2" and tr == 4 and tc == 2:
+                return m
+                
+        # 2. Verifica se há possibilidade de captura simples
+        captures = []
+        for m in valid_moves:
+            fr, fc, tr, tc, card = m
+            if self.board[tr][tc].endswith("1"):
+                captures.append(m)
+        if captures:
+            return random.choice(captures)
+            
+        # 3. Fallback: faz um movimento aleatório
+        # Ponderação para não avançar o Mestre à toa no meio do fogo cruzado
+        safe_moves = []
+        for m in valid_moves:
+            fr, fc, tr, tc, card = m
+            if self.board[fr][fc] != "m2":
+                safe_moves.append(m)
+                
+        if safe_moves:
+            return random.choice(safe_moves)
+            
+        return random.choice(valid_moves)
