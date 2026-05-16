@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dojo Tactics</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="setup-screen" class="screen">
+        <div class="glass-panel">
+            <h1>Dojo Tactics</h1>
+            <p>A arte marcial da elegância e simplicidade.</p>
+            
+            <div class="how-to-play">
+                <h3>Como Jogar?</h3>
+                <p>1. Ganhe de duas formas: capture o Mestre inimigo (Sensei) ou leve o seu Mestre até a casa do Templo Inimigo.</p>
+                <p>2. Você só pode mover suas peças usando as posições das 2 cartas na sua mão.</p>
+                <p>3. Após usar uma carta, ela troca de lugar com a Carta Neutra lateral.</p>
+            </div>
+
+            <button id="create-btn" class="primary-btn">Criar Nova Partida</button>
+            
+            <div id="join-section">
+                <div class="input-group">
+                    <input type="text" id="room-input" placeholder="Código da Sala" />
+                    <select id="player-select">
+                        <option value="p1">Jogador 1 (Base - Azul)</option>
+                        <option value="p2">Jogador 2 (Topo - Vermelho)</option>
+                    </select>
+                    <button id="join-btn" class="secondary-btn">Entrar</button>
+                </div>
+            </div>
+
+            <div id="room-info" class="hidden">
+                <p class="success-text">Partida Criada com Sucesso!</p>
+                <div class="links-box">
+                    <p>Mande este link para o Jogador 2:</p>
+                    <input type="text" id="link-p2" readonly value="Aguardando...">
+                    <a href="#" id="link-p1" class="join-link">Entrar como Jogador 1 Agora!</a>
+                </div>
+            </div>
+            
+            <div id="active-games-container" class="active-games">
+                <h3>Jogos em Andamento</h3>
+                <div id="active-games-list">
+                    <!-- Preenchido via JS -->
+                </div>
+            </div>
+
+            <div id="past-games-container" class="active-games">
+                <h3>Histórico de Jogos</h3>
+                <div id="past-games-list">
+                    <!-- Preenchido via JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-screen" class="screen hidden">
+        <div id="status-panel" class="status-panel">
+            <h2 id="turn-indicator">Conectando...</h2>
+            <p id="room-display"></p>
+            <p id="player-display"></p>
+        </div>
+
+        <div class="game-container">
+            <!-- Opponent Cards (Top) -->
+            <div id="opponent-cards" class="cards-container">
+                <!-- Cards injected here -->
+            </div>
+            
+            <div class="middle-area">
+                <!-- Neutral Card (Left/Right) -->
+                <div id="neutral-card-area" class="neutral-area">
+                    <!-- Card injected here -->
+                </div>
+                
+                <!-- The Board (Center) -->
+                <div class="board-wrapper">
+                    <div id="board" class="board">
+                        <!-- 25 squares injected here -->
+                    </div>
+                </div>
+                <div class="empty-spacer"></div>
+            </div>
+            
+            <!-- Player Cards (Bottom) -->
+            <div id="player-cards" class="cards-container">
+                <!-- Cards injected here -->
+            </div>
+        </div>
+        
+        <div id="victory-modal" class="modal hidden">
+            <div class="glass-panel modal-content">
+                <h1 id="victory-message">Vitória!</h1>
+                <button class="primary-btn" onclick="window.location.href='/'">Sair</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
