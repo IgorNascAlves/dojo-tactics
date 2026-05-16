@@ -1,6 +1,6 @@
 # Dojo Tactics 🥋
 
-Um clone multiplayer em tempo real de um elegante jogo de tabuleiro estratégico 5x5, jogável diretamente no navegador!
+Um jogo web multiplayer em tempo real, baseado em estratégia de movimentação 5x5. Elegante, rápido e jogável diretamente no navegador!
 
 ![Status](https://img.shields.io/badge/Status-Ativo-success)
 ![Licença](https://img.shields.io/badge/License-Open_Source-blue)
