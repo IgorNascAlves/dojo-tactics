@@ -63,10 +63,20 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str, player_id: str)
         
     connections[room_id][player_id] = websocket
     
-    # Send current state
     game = games[room_id]
     await broadcast_state(room_id)
     
+    # Se a sala for contra IA, o Jogador 1 (Humano) acabou de entrar, e o turno for da IA (P2),
+    # nós damos o gatilho para a IA fazer a sua jogada de abertura!
+    if getattr(game, 'is_ai', False) and game.turn == "p2" and player_id == "p1" and not game.winner:
+        import asyncio
+        await asyncio.sleep(1.0)
+        ai_move = game.get_ai_move()
+        if ai_move:
+            fr, fc, tr, tc, ai_card = ai_move
+            game.move("p2", fr, fc, tr, tc, ai_card)
+            await broadcast_state(room_id)
+
     try:
         while True:
             data = await websocket.receive_text()

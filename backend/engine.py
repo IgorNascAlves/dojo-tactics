@@ -47,8 +47,7 @@ class GameState:
         self.p2_cards = [drawn[2], drawn[3]]
         self.neutral_card = drawn[4]
         
-        # Red cards start first, or we can randomize. Let's just say P1 starts for simplicity, 
-        # or determine by the neutral card's color in the real game. We'll randomize.
+        # Sorteio do primeiro a jogar (50% de chance para cada lado)
         self.turn = "p1" if random.random() > 0.5 else "p2"
         self.winner = None
         self.last_action = None

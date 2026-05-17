@@ -7,6 +7,7 @@ let roomId = null;
 let playerId = null;
 let socket = null;
 let gameState = null;
+let isMuted = true;
 
 let selectedCard = null;
 let selectedPiece = null; // {row, col}
@@ -24,6 +25,7 @@ const roomInfo = document.getElementById('room-info');
 const linkP1 = document.getElementById('link-p1');
 const linkP2 = document.getElementById('link-p2');
 const copyBtn = document.getElementById('copy-btn');
+const muteBtn = document.getElementById('mute-btn');
 
 const boardEl = document.getElementById('board');
 const p1CardsEl = document.getElementById('player-cards');
@@ -31,7 +33,7 @@ const p2CardsEl = document.getElementById('opponent-cards');
 const neutralCardEl = document.getElementById('neutral-card-area');
 const turnIndicator = document.getElementById('turn-indicator');
 const roomDisplay = document.getElementById('room-display');
-const playerDisplay = document.getElementById('player-display');
+const playerDisplay = document.getElementById('player-display-visible');
 const victoryModal = document.getElementById('victory-modal');
 const victoryMessage = document.getElementById('victory-message');
 
@@ -126,7 +128,12 @@ async function fetchActiveGames() {
     }
 }
 
-// --- EVENTOS DE SETUP ---
+// --- EVENTOS DE SETUP E CONTROLE ---
+muteBtn.addEventListener('click', () => {
+    isMuted = !isMuted;
+    muteBtn.textContent = isMuted ? '🔇 Mudo' : '🔊 Som Ativo';
+});
+
 function copyLink() {
     linkP2.select();
     navigator.clipboard.writeText(linkP2.value).then(() => {
@@ -231,6 +238,14 @@ function connectWebSocket() {
     socket.onclose = () => {
         turnIndicator.textContent = "Desconectado.";
         turnIndicator.style.color = "gray";
+        
+        // Se a conexão fechar e o tabuleiro nem tiver carregado, a sala não existe mais
+        if (isInitialLoad) {
+            setTimeout(() => {
+                alert("Não foi possível conectar. A sala pode ter sido encerrada.");
+                window.location.href = '/';
+            }, 500);
+        }
     };
 }
 
@@ -319,9 +334,6 @@ function renderBoard() {
             cell.dataset.row = row;
             cell.dataset.col = col;
 
-            // Se for o Jogador 2, invertemos visualmente a renderização para ele ver suas peças embaixo?
-            // Para simplificar agora, P1 fica embaixo e P2 em cima pra todo mundo.
-            
             const piece = board[row][col];
             if (piece) {
                 const pieceEl = document.createElement('div');
@@ -348,10 +360,6 @@ function renderBoard() {
 }
 
 function renderCards() {
-    // Para simplificar a visualização, se eu sou P2 as "minhas" cartas ficam embaixo
-    // Mas a lógica do servidor assume P1 embaixo.
-    // Vamos desenhar P1 sempre embaixo e P2 em cima.
-    
     // Minhas cartas
     const myCards = playerId === 'p1' ? gameState.p1_cards : gameState.p2_cards;
     const oppCards = playerId === 'p1' ? gameState.p2_cards : gameState.p1_cards;
@@ -389,16 +397,9 @@ function createCardElement(cardName, isMine, isNeutral = false) {
             if(r === 2 && c === 2) {
                 cell.classList.add('center');
             } else {
-                // Verificar se é um movimento
-                // No grid 5x5, center é (2,2). 
-                // dy = r - 2, dx = c - 2
-                // Lembrando que pra P1 (que vê de baixo), -y é pra cima.
-                // Mas as cartas são fixas visualmente.
                 const dy = r - 2;
                 const dx = c - 2;
                 
-                // O servidor usa -y como "forward" (para cima no tabuleiro, que tem row 0 no topo).
-                // Então o desenho da carta: (0, -1) é a casa acima do centro.
                 const isMove = moves.some(m => m[0] === dx && m[1] === dy);
                 if (isMove) {
                     cell.classList.add('move');
@@ -484,9 +485,9 @@ function calculateValidMoves() {
     });
 }
 
-// --- EFEITOS SONOROS ---
+// --- EFEITOS DE ÁUDIO ---
 function playSound(action) {
-    if (!action) return;
+    if (isMuted) return; 
     
     let audioSrc = 'sounds/move.mp3';
     

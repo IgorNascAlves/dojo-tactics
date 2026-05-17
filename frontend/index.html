@@ -67,10 +67,19 @@
     </div>
 
     <div id="game-screen" class="screen hidden">
-        <div id="status-panel" class="status-panel">
-            <h2 id="turn-indicator">Conectando...</h2>
-            <p id="room-display"></p>
-            <p id="player-display"></p>
+        <div id="status-panel" class="status-panel" style="flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px;">
+                <button onclick="window.location.href='/'" class="secondary-btn" style="padding: 4px 8px; font-size: 0.8rem; background: transparent; border: 1px solid rgba(255,255,255,0.2);">🏠 Voltar</button>
+                <h2 id="turn-indicator" style="flex: 1; text-align: center; margin: 0; font-size: 1.1rem;">Conectando...</h2>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <p id="player-display" style="margin: 0; font-size: 0.8rem; display: none;"></p>
+                    <button id="mute-btn" class="secondary-btn" style="padding: 4px 8px; font-size: 0.8rem; background: transparent; border: 1px solid rgba(255,255,255,0.2);">🔇 Mudo</button>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 10px;">
+                <p id="room-display" style="margin: 0; font-size: 0.8rem; color: #94a3b8;"></p>
+                <p id="player-display-visible" style="margin: 0; font-size: 0.8rem; color: #94a3b8;"></p>
+            </div>
             <div id="spectator-actions" class="hidden" style="margin-top: 12px; display: flex; gap: 8px;"></div>
         </div>
 

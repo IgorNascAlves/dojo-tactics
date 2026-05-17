@@ -30,8 +30,9 @@ body {
     min-height: 100vh;
     display: flex;
     justify-content: center;
-    align-items: center;
-    overflow: hidden;
+    align-items: flex-start; /* Permite scroll natural sem cortar o topo */
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .hidden {
@@ -40,11 +41,12 @@ body {
 
 .screen {
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    padding: 40px 0;
 }
 
 /* Glassmorphism Panel */
